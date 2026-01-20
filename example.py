@@ -169,7 +169,7 @@ class Blockchain:
                 }
             }
         )
-        print("Notification sent successfully:", response['publishId'], formatted_phone_number)
+        print("Notification sent successfully. Publish ID:", response['publishId'])
 
 if __name__ == '__main__':
     blockchain = Blockchain()
