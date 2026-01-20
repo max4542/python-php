@@ -8,14 +8,26 @@ import requests
 from jwt import encode as jwt_encode
 import secrets
 import csv
+from argon2 import PasswordHasher
 
 # Secret key for JWT token encoding and decoding
 SECRET_KEY = secrets.token_hex(32)
 
+# Password hasher instance for secure password hashing and verification
+password_hasher = PasswordHasher()
+
 # User credentials (username, hashed password, and phone number)
 user_credentials = {
-    'maxrai788@gmail.com': ('27f27963f33ab867850a8962b48530fe', '9807374556'),  # 'password' hashed using MD5
-    'user2@example.com': ('098f6bcd4621d373cade4e832627b4f6', '+1987654321'),  # 'test' hashed using MD5
+    # 'password'
+    'maxrai788@gmail.com': (
+        '$argon2id$v=19$m=65536,t=3,p=4$E4EJ4eC4K1UjpiZzGj1JOg$T+MBp51a+0BBeEaiw2CXs3sVqUl/98MSRy6GoS2LBrE',
+        '9807374556'
+    ),
+    # 'test'
+    'user2@example.com': (
+        '$argon2id$v=19$m=65536,t=3,p=4$rOclVtHIfRNrCwXRjq8Vog$ZLH+7wLCkC50x6TElJ5OmqZpGEdwrWgl92BfeYFNscg',
+        '+1987654321'
+    ),
 }
 
 class Blockchain:
@@ -70,10 +82,13 @@ class Blockchain:
         return hashlib.sha256(encoded_block).hexdigest()
 
     def authenticate_user(self, email, password):
-        # Check if user exists and password matches the hashed password
-        if email in user_credentials and hashlib.md5(password.encode()).hexdigest() == user_credentials[email][0]:
-            return True
-        else:
+        # Check if user exists and password matches the stored Argon2 hash
+        if email not in user_credentials:
+        stored_hash = user_credentials[email][0]
+        try:
+            return password_hasher.verify(stored_hash, password)
+        except Exception:
+            return False
             return False
 
     def add_transaction(self):
