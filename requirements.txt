@@ -1,2 +1,3 @@
 mysql-connector-python
+argon2-cffi==25.1.0
 pytz
